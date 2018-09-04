@@ -205,7 +205,7 @@ func (v Value) String() string {
 	if v.typ == Null {
 		return "NULL"
 	}
-	if v.IsQuoted() {
+	if v.IsQuoted() || v.typ == Bit {
 		return fmt.Sprintf("%v(%q)", v.typ, v.val)
 	}
 	return fmt.Sprintf("%v(%s)", v.typ, v.val)
@@ -279,7 +279,7 @@ func (v Value) IsBinary() bool {
 // It's not a complete implementation.
 func (v Value) MarshalJSON() ([]byte, error) {
 	switch {
-	case v.IsQuoted():
+	case v.IsQuoted() || v.typ == Bit:
 		return json.Marshal(v.ToString())
 	case v.typ == Null:
 		return nullstr, nil
