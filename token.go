@@ -26,6 +26,10 @@ import (
 	"github.com/xwb1989/sqlparser/dependency/sqltypes"
 )
 
+var (
+	NonIndexedValueArgs = false
+)
+
 const (
 	defaultBufSize = 4096
 	eofChar        = 0x100
@@ -51,6 +55,9 @@ type Tokenizer struct {
 	buf     []byte
 	bufPos  int
 	bufSize int
+
+	// NonIndexedValueArgs leaves question mark value_args intact and doesn't transform them to ordered named params
+	NonIndexedValueArgs bool
 }
 
 // NewStringTokenizer creates a new Tokenizer for the
@@ -58,8 +65,9 @@ type Tokenizer struct {
 func NewStringTokenizer(sql string) *Tokenizer {
 	buf := []byte(sql)
 	return &Tokenizer{
-		buf:     buf,
-		bufSize: len(buf),
+		buf:                 buf,
+		bufSize:             len(buf),
+		NonIndexedValueArgs: NonIndexedValueArgs,
 	}
 }
 
@@ -517,10 +525,14 @@ func (tkn *Tokenizer) Scan() (int, []byte) {
 			}
 			return int(ch), nil
 		case '?':
-			tkn.posVarIndex++
-			buf := new(bytes2.Buffer)
-			fmt.Fprintf(buf, ":v%d", tkn.posVarIndex)
-			return VALUE_ARG, buf.Bytes()
+			if !tkn.NonIndexedValueArgs {
+				tkn.posVarIndex++
+				buf := new(bytes2.Buffer)
+				fmt.Fprintf(buf, ":v%d", tkn.posVarIndex)
+				return VALUE_ARG, buf.Bytes()
+			} else {
+				return VALUE_ARG, []byte{byte(ch)}
+			}
 		case '.':
 			if isDigit(tkn.lastChar) {
 				return tkn.scanNumber(true)
