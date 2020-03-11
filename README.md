@@ -51,7 +51,6 @@ for {
 
 See [parse_test.go](https://github.com/xwb1989/sqlparser/blob/master/parse_test.go) for more examples, or read the [godoc](https://godoc.org/github.com/xwb1989/sqlparser).
 
-
 ## Porting Instructions
 
 You only need the below if you plan to try and keep this library up to date with [vitessio/vitess](https://github.com/vitessio/vitess).
@@ -64,7 +63,7 @@ VITESS=${GOPATH?}/src/vitess.io/vitess/go/
 XWB1989=${GOPATH?}/src/github.com/xwb1989/sqlparser/
 
 # Create patches for everything that changed
-LASTIMPORT=1b7879cb91f1dfe1a2dfa06fea96e951e3a7aec5
+LASTIMPORT=53fcd3674410b5da5c91ead86d3969e7b3b191bf
 for path in ${VITESS?}/{vt/sqlparser,sqltypes,bytes2,hack}; do
 	cd ${path}
 	git format-patch ${LASTIMPORT?} .
